@@ -95,6 +95,8 @@ public class Index extends Application {
 			amountCrashes++;
 			cumulated += aktCrash;
 			averageAll = cumulated / amountCrashes;
+			
+			// durschnitt blau rot noch anzeigen
 		
 		} catch (Exception e) {
 			e.printStackTrace();
