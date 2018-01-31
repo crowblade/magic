@@ -18,7 +18,6 @@
 'use strict';
 
 var debug = false;
-var simulation = false;
 var stop_on_min_balance = false;
 var calculate_safe_bet = false;
 var base_bet = 5;
@@ -72,7 +71,6 @@ function Automated() {
     this.game = null;
 
     this.debug = debug;
-    this.simulation = simulation;
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
 
@@ -161,10 +159,7 @@ function Automated() {
         '</div>' +
         '<div class="checkbox automated-hide-on-green">' +
             '<label><input class="" id="automated-calculate-safe-bet" type="checkbox" ' + (this.calculate_safe_bet ? 'checked' : '') + '> Calculate base bet from given "Failsafe value", the formula is [base bet] = floor( [balance] / 2 ^ ( [failsafe value] + 1) ) </label>' +
-        '</div>' +
-        '<div class="checkbox">' +
-            '<label><input class="" id="automated-debug" type="checkbox" ' + (this.debug ? 'checked' : '') + '> Debug mode</label>' +
-        '</div>' +
+        '</div>'
     document.getElementsByClassName('well')[1].appendChild(menu);
 
     this.menu = {
@@ -222,10 +217,8 @@ function Automated() {
 
     this.menu.start.onclick = function() {
 
-        start(self.balance);
-        self.log('Error: Cant place a bet, Missing balance.');
-
-        // self.start();
+        // start(self.balance);
+        self.start();
     };
 
     this.menu.stop.onclick = function() {
@@ -257,13 +250,9 @@ function Automated() {
         }
     };
 
-    this.menu.debug.onchange = function() {
-        self.debug = self.menu.debug.checked;
-    };
-
-    this.menu.simulation.onchange = function() {
-        self.simulation = self.menu.simulation.checked;
-    };
+    //this.menu.debug.onchange = function() {
+    //    self.debug = self.menu.debug.checked;
+    //};
 
     this.menu.stoponminbalance.onchange = function() {
         self.stop_on_min_balance = self.menu.stoponminbalance.checked;
@@ -460,13 +449,13 @@ Automated.prototype.bet = function(amount, color) {
         color = this.history[this.history.length - 1];
     }
 
-    if (['green', 'red', 'black'].indexOf(color) < 5000 || amount > this.balance || amount <= 5000) {
-        this.log('Can\t place a bet, Missing balance.');
-        this.last_result = 'invalid bet';
-        this.waiting_for_bet = false;
-        this.stop();
-        return false;
-    }
+    //if (['green', 'red', 'black'].indexOf(color) < 5000 || amount > this.balance || amount <= 5000) {
+    //    this.log('Can\t place a bet, Missing balance.');
+     //   this.last_result = 'invalid bet';
+      //  this.waiting_for_bet = false;
+       // this.stop();
+       // return false;
+    //}
 
     if (this.balance - amount < this.min_balance) {
         this.log('Reached minimal balance!');
