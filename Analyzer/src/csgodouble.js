@@ -483,8 +483,8 @@ Automated.prototype.bet = function(amount, color) {
                         } else {
                             if (self.debug) { self.logdebug('Bet accepted!'); }
                             self.last_bet = amount;
-                            if(parseInt(amount) > parseInt(self.biggestbet)) {
-                            	self.biggestbet = amount;
+                            if(amount > this.biggestbet) {
+                            	this.biggestbet = amount;
                             }
                             self.bet_history.push(amount);
                             self.last_color = color;
