@@ -424,11 +424,11 @@ Automated.prototype.updateHistory = function() {
 };
 
 Automated.prototype.updateStats = function() {
-    this.stats.balance = parseInt(this.balance) - parseInt(this.starting_balance);
+    this.stats.profit = parseInt(this.balance) - parseInt(this.starting_balance);
     this.menu.statistics.wins.innerHTML = this.stats.wins;
     this.menu.statistics.losses.innerHTML = this.stats.losses;
     this.menu.statistics.profit.innerHTML = this.stats.profit;
-    this.menu.statistics.profit.innerHTML = this.stats.biggestbet;
+    this.menu.statistics.biggestbet.innerHTML = this.stats.biggestbet;
     return true;
 };
 
@@ -483,7 +483,7 @@ Automated.prototype.bet = function(amount, color) {
                         } else {
                             if (self.debug) { self.logdebug('Bet accepted!'); }
                             self.last_bet = amount;
-                            if(amount > self.biggestbet) {
+                            if(parseInt(amount) > parseInt(self.biggestbet)) {
                             	self.biggestbet = amount;
                             }
                             self.bet_history.push(amount);
