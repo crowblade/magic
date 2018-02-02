@@ -89,6 +89,7 @@ function Automated() {
     this.min_balance = 0;
     this.starting_balance = 0;
     this.biggestbet = 0;
+    this.minreached = 0;
     this.last_color = null;
     this.last_result = null;
     this.history = [];
@@ -99,7 +100,8 @@ function Automated() {
         'wins': 0,
         'losses': 0,
         'profit': 0,
-        'biggestbet': 0
+        'biggestbet': 0,
+        'minreached': 0
     };
 
     var menu = document.createElement('div');
@@ -138,6 +140,7 @@ function Automated() {
                 '<p><b>Losses:</b> <span id="automated-stats-loses">' + this.stats.losses + '</span></p>' +
                 '<p><b>Profit:</b> <span id="automated-stats-balance">' + this.stats.profit + '</span></p>' +
                 '<p><b>Biggest Bet:</b> <span id="automated-stats-biggestbet">' + this.stats.biggestbet + '</span></p>' +
+                '<p><b>Min Reached:</b> <span id="automated-stats-minreached">' + this.stats.minreached + '</span></p>' +
             '</div>' +
         '</div>' +
         '<div class="form-group">' +
@@ -184,7 +187,8 @@ function Automated() {
             'wins': document.getElementById('automated-stats-wins'),
             'losses': document.getElementById('automated-stats-loses'),
             'profit': document.getElementById('automated-stats-balance'),
-            'biggestbet': document.getElementById('automated-stats-biggestbet')
+            'biggestbet': document.getElementById('automated-stats-biggestbet'),
+            'minreached': document.getElementById('automated-stats-minreached')
         },
         'theme': document.getElementById('automated-theme-switch'),
 		'safebetamount': document.getElementById('automated-safe-bet-amount'),
@@ -429,6 +433,7 @@ Automated.prototype.updateStats = function() {
     this.menu.statistics.losses.innerHTML = this.stats.losses;
     this.menu.statistics.profit.innerHTML = this.stats.profit;
     this.menu.statistics.biggestbet.innerHTML = this.stats.biggestbet;
+    this.menu.statistics.minreached.innerHTML = this.stats.minreached;
     return true;
 };
 
@@ -458,6 +463,7 @@ Automated.prototype.bet = function(amount, color) {
     if (this.balance - amount < this.min_balance) {
         this.log('Reached minimal balance!');
         this.last_result = 'reached min balance';
+        self.stats.minreached += 1;
         if (this.stop_on_min_balance || this.balance - this.base_bet < this.min_balance) {
             this.stop();
         }
