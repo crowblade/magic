@@ -24,7 +24,6 @@ var base_bet = 5;
 var safe_bet_amount = 6;
 var default_color = 'red';
 var default_method = 'martingale';
-var theme = 'dark';
 
 var colors = {
     'green': [0],
@@ -94,7 +93,6 @@ function Automated() {
     this.last_result = null;
     this.history = [];
     this.waiting_for_bet = false;
-    this.theme = theme;
 
     this.stats = {
         'wins': 0,
@@ -190,7 +188,6 @@ function Automated() {
             'biggestbet': document.getElementById('automated-stats-biggestbet'),
             'minreached': document.getElementById('automated-stats-minreached')
         },
-        'theme': document.getElementById('automated-theme-switch'),
 		'safebetamount': document.getElementById('automated-safe-bet-amount'),
 		'calculatesafebet': document.getElementById('automated-calculate-safe-bet'),
         'martingale': document.getElementById('automated-martingale'),
@@ -219,10 +216,6 @@ function Automated() {
             }
         }
     }, 2 * 1000);
-
-    if (theme === 'dark') {
-        this.darkMode();
-    }
 
     this.menu.start.onclick = function() {
 
@@ -371,18 +364,6 @@ function Automated() {
         }
         self.method = 'green';
         self.log('Current method: Bet green');
-    };
-
-    this.menu.theme.onclick = function() {
-        if (self.theme === 'dark') {
-            self.lightMode();
-            self.theme = 'light';
-            self.log('Switching to light theme...');
-        } else {
-            self.darkMode();
-            self.theme = 'dark';
-            self.log('Switching to dark theme...');
-        }
     };
 
 //    setInterval(function() {
