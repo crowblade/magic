@@ -26,6 +26,7 @@ var default_color = 'red';
 var default_method = 'martingale';
 var stopon5 = false;
 var initial_bet = 5;
+var max_bet = 0;
 var afterparty = false;
 
 var colors = {
@@ -77,7 +78,8 @@ function Automated() {
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
 	this.stopon5 = stopon5;
-	this.initial_bet = initial_bet;
+	this.initial_bet = initial_betbase_bet;
+	this.max_bet = max_bet;
 	this.afterparty = afterparty;
 
     this.base_bet = base_bet;
@@ -472,13 +474,7 @@ Automated.prototype.bet = function(amount, color) {
         return false;
     }
 
-    if(self.stopon5) {
-	    var maxstopon5 = 0;
-	    for(var i = 0; i < 5; i++) {
-	    	this.maxstopon5 += (this.initial_bet * 2);
-	    }
-	    this.log('Max Bet is: ' + this.maxstopon5);
-	    
+    if(self.stopon5) {	    
 	    if(amount > this.maxstopon5) {
 	    	this.log('Max bet reached!');
 	    	this.last_result = 'Max bet reached';
@@ -599,7 +595,17 @@ Automated.prototype.start = function() {
         self.base_bet = Math.floor(self.balance / Math.pow(2, self.safe_bet_amount + 1));
         self.menu.basebet.value = self.base_bet;
     }
+    
     this.initial_bet = this.base_bet;
+    
+    // Max Bet handling
+    var maxstopon5 = 0;
+    for(var i = 0; i < 5; i++) {
+    	this.maxstopon5 = (this.initial_bet * 2);
+    }
+    this.log('Max Bet is: ' + this.maxstopon5);
+    
+    // Actual start
     this.old_base = this.base_bet;
     this.old_method = this.method;
     if (this.updateAll()) {
