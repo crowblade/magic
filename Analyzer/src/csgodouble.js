@@ -25,6 +25,8 @@ var safe_bet_amount = 6;
 var default_color = 'red';
 var default_method = 'martingale';
 var stopon5 = false;
+var initial_bet = 5;
+var afterparty = false;
 
 var colors = {
     'green': [0],
@@ -75,6 +77,8 @@ function Automated() {
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
 	this.stopon5 = stopon5;
+	this.initial_bet = initial_bet;
+	this.afterparty = afterparty;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
@@ -170,6 +174,9 @@ function Automated() {
         '<div class="checkbox">' +
         	'<label><input class="" id="automated-stopon5" type="checkbox" ' + (this.stopon5 ? 'checked' : '') + '> Stop on 5x increasing the Basebet</label>' +
         '</div>' +
+        '<div class="checkbox">' +
+    	'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
+    '</div>' +
     document.getElementsByClassName('well')[1].appendChild(menu);
 
     this.menu = {
@@ -179,6 +186,7 @@ function Automated() {
         'basebet': document.getElementById('automated-base-bet'),
         'minbalance': document.getElementById('automated-min-balance'),
         'stopon5' : document.getElementById('automated-stopon5'),
+        'afterparty' : document.getElementById('automated-afterparty'),
         'stoponminbalance': document.getElementById('automated-stop-on-min-balance'),
         'red': document.getElementById('automated-red'),
         'black': document.getElementById('automated-black'),
@@ -272,6 +280,10 @@ function Automated() {
 	
 	this.menu.stopon5.onchange = function() {
 		self.stopon5 = self.menu.stopon5.checked;
+	};
+	
+	this.menu.afterparty.onchange = function() {
+		self.afterparty = self.menu.afterparty.checked;
 	};
 
     // WTF is this shit below? >,.,<
@@ -462,13 +474,14 @@ Automated.prototype.bet = function(amount, color) {
     
     var maxstopon5 = 0;
     for(var i = 0; i < 5; i++) {
-    	this.maxstopon5 += this.old_base * 2;
+    	this.maxstopon5 += this.initial_bet * 2;
     }
+    this.log('Max Bet is: ' this.maxstopon5);
     
     if(self.stopon5 && amount > this.maxstopon5) {
     	this.log('Max bet reached!');
     	this.last_result = 'Max bet reached';
-    	this.base_bet = this.old_base;
+    	this.base_bet = this.initial_bet;
     	return true;
     }
 
@@ -583,6 +596,7 @@ Automated.prototype.start = function() {
         self.base_bet = Math.floor(self.balance / Math.pow(2, self.safe_bet_amount + 1));
         self.menu.basebet.value = self.base_bet;
     }
+    this.initial_bet = this.base_bet;
     this.old_base = this.base_bet;
     this.old_method = this.method;
     if (this.updateAll()) {
