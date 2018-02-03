@@ -461,7 +461,7 @@ Automated.prototype.bet = function(amount, color) {
     }
     
     var maxstopon5 = 0;
-    for(int i = 0; i < 5; i++) {
+    for(var i = 0; i < 5; i++) {
     	this.maxstopon5 += self.base_bet * 2;
     }
     if(self.stopon5 && amount >= this.maxstopon5) {
