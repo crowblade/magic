@@ -459,7 +459,7 @@ Automated.prototype.bet = function(amount, color) {
         }
     } else if (color === 'random') {
         color = 'red';
-        if (Math.random() * (1 - 0.1) + 0.1) {
+        if ((Math.random() * (1 - 0.1) + 0.1) > 0.5) {
             color = 'black';
         }
     } else if (color === 'last') {
@@ -568,7 +568,7 @@ Automated.prototype.play = function() {
                 if (self.old_method === 'martingale') {
                     self.bet(self.last_bet * 2);
                 } else if (self.old_method === 'great martingale') {
-                    self.bet(self.last_bet * 2 + self.old_base);
+                    self.bet(self.last_bet * 2 + self.initial_bet);
                 } else if (self.old_method === 'green') {
                     var bet_value = 0;
                     if (self.bet_history[self.bet_history.length - 1] === 1) {
@@ -586,7 +586,7 @@ Automated.prototype.play = function() {
                 }
             }
             // Afterparty
-            if(self.last_color)
+            // last_color = this.history[this.history.length - 1]
         }
     }, 2 * 1000);
 
