@@ -2,8 +2,8 @@
 // @name            csgodouble.com - automated
 // @description     An script that automates csgodouble.com betting using martingale system.
 // @namespace       automated@mole
-// @version         1.30
-// @author          Chiraq
+// @version         1.40
+// @author          Chiraq, descammed by crowblade
 // @match           http://www.csgodouble.com/
 // @match           http://www.csgodouble.com/index.php
 // @match           http://csgodouble.com/
@@ -24,7 +24,7 @@ var base_bet = 5;
 var safe_bet_amount = 6;
 var default_color = 'red';
 var default_method = 'martingale';
-var theme = 'dark';
+var stopon5 = false;
 
 var colors = {
     'green': [0],
@@ -36,9 +36,9 @@ var balance = document.getElementById('balance');
 var roll_history = document.getElementById('past');
 var bet_input = document.getElementById('betAmount');
 var bet_buttons = {
-    'green': document.getElementById('panel0-0').childNodes[1].childNodes[1],
-    'red': document.getElementById('panel1-7').childNodes[1].childNodes[1],
-    'black': document.getElementById('panel8-14').childNodes[1].childNodes[1]
+    'green': document.getElementById('panel0-0-b').childNodes[1].childNodes[1],
+    'red': document.getElementById('panel1-7-b').childNodes[1].childNodes[1],
+    'black': document.getElementById('panel8-14-b').childNodes[1].childNodes[1]
 };
 
 Array.prototype.equals = function(array) {
@@ -64,6 +64,7 @@ Array.prototype.equals = function(array) {
 
 Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
+
 function Automated() {
     var self = this;
 
@@ -73,6 +74,7 @@ function Automated() {
     this.debug = debug;
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
+	this.stopon5 = stopon5;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
@@ -87,23 +89,26 @@ function Automated() {
     this.bet_history = [];
     this.min_balance = 0;
     this.starting_balance = 0;
+    this.biggestbet = 0;
+    this.minreached = 0;
     this.last_color = null;
     this.last_result = null;
     this.history = [];
     this.waiting_for_bet = false;
-    this.theme = theme;
 
     this.stats = {
         'wins': 0,
-        'loses': 0,
-        'balance': 0
+        'losses': 0,
+        'profit': 0,
+        'biggestbet': 0,
+        'minreached': 0
     };
 
     var menu = document.createElement('div');
     menu.innerHTML = '' +
         '<div class="row">' +
             '<div class="col-lg-9">' +
-                '<h2>CSGODouble.com Automated <small>by K2 Chiraq</small> <i id="automated-theme-switch" class="fa fa-lightbulb-o" style="cursor: pointer;"></i></h2>' +
+                '<h2>CSGODouble.com Automated <small>descammed by crow</small></h2>' +
                 '<div class="form-group">' +
                     '<div class="btn-group">' +
                         '<button type="button" class="btn btn-success" id="automated-start" disabled>Start</button>' +
@@ -132,8 +137,10 @@ function Automated() {
             '<div class="col-lg-3">' +
                 '<h3>Statistics</h3>' +
                 '<p><b>Wins:</b> <span id="automated-stats-wins">' + this.stats.wins + '</span></p>' +
-                '<p><b>Loses:</b> <span id="automated-stats-loses">' + this.stats.loses + '</span></p>' +
-                '<p><b>Balance:</b> <span id="automated-stats-balance">' + this.stats.balance + '</span></p>' +
+                '<p><b>Losses:</b> <span id="automated-stats-loses">' + this.stats.losses + '</span></p>' +
+                '<p><b>Profit:</b> <span id="automated-stats-balance">' + this.stats.profit + '</span></p>' +
+                '<p><b>Biggest Bet:</b> <span id="automated-stats-biggestbet">' + this.stats.biggestbet + '</span></p>' +
+                '<p><b>Min Reached:</b> <span id="automated-stats-minreached">' + this.stats.minreached + '</span></p>' +
             '</div>' +
         '</div>' +
         '<div class="form-group">' +
@@ -159,7 +166,10 @@ function Automated() {
         '</div>' +
         '<div class="checkbox automated-hide-on-green">' +
             '<label><input class="" id="automated-calculate-safe-bet" type="checkbox" ' + (this.calculate_safe_bet ? 'checked' : '') + '> Calculate base bet from given "Failsafe value", the formula is [base bet] = floor( [balance] / 2 ^ ( [failsafe value] + 1) ) </label>' +
-        '</div>'
+        '</div>' +
+        '<div class="checkbox">' +
+        	'<label><input class="" id="automated-stopon5" type="checkbox" ' + (this.stopon5 ? 'checked' : '') + '> Stop on 5x increasing the Basebet</label>' +
+        '</div>' +
     document.getElementsByClassName('well')[1].appendChild(menu);
 
     this.menu = {
@@ -168,8 +178,7 @@ function Automated() {
         'abort': document.getElementById('automated-abort'),
         'basebet': document.getElementById('automated-base-bet'),
         'minbalance': document.getElementById('automated-min-balance'),
-        'debug': document.getElementById('automated-debug'),
-        'simulation': document.getElementById('automated-simulation'),
+        'stopon5' : document.getElementById('automated-stopon5'),
         'stoponminbalance': document.getElementById('automated-stop-on-min-balance'),
         'red': document.getElementById('automated-red'),
         'black': document.getElementById('automated-black'),
@@ -178,10 +187,11 @@ function Automated() {
         'last': document.getElementById('automated-last'),
         'statistics': {
             'wins': document.getElementById('automated-stats-wins'),
-            'loses': document.getElementById('automated-stats-loses'),
-            'balance': document.getElementById('automated-stats-balance')
+            'losses': document.getElementById('automated-stats-loses'),
+            'profit': document.getElementById('automated-stats-balance'),
+            'biggestbet': document.getElementById('automated-stats-biggestbet'),
+            'minreached': document.getElementById('automated-stats-minreached')
         },
-        'theme': document.getElementById('automated-theme-switch'),
 		'safebetamount': document.getElementById('automated-safe-bet-amount'),
 		'calculatesafebet': document.getElementById('automated-calculate-safe-bet'),
         'martingale': document.getElementById('automated-martingale'),
@@ -210,10 +220,6 @@ function Automated() {
             }
         }
     }, 2 * 1000);
-
-    if (theme === 'dark') {
-        this.darkMode();
-    }
 
     this.menu.start.onclick = function() {
 
@@ -262,6 +268,10 @@ function Automated() {
 		self.calculate_safe_bet = self.menu.calculatesafebet.checked;
 		self.menu.basebet.disabled = self.menu.calculatesafebet.checked;
 		self.menu.safebetamount.disabled = !self.menu.calculatesafebet.checked;
+	};
+	
+	this.menu.stopon5.onchange = function() {
+		self.stopon5 = self.menu.stopon5.checked;
 	};
 
     // WTF is this shit below? >,.,<
@@ -364,24 +374,12 @@ function Automated() {
         self.log('Current method: Bet green');
     };
 
-    this.menu.theme.onclick = function() {
-        if (self.theme === 'dark') {
-            self.lightMode();
-            self.theme = 'light';
-            self.log('Switching to light theme...');
-        } else {
-            self.darkMode();
-            self.theme = 'dark';
-            self.log('Switching to dark theme...');
-        }
-    };
-
-    setInterval(function() {
-        if(!WS) {
-            self.log('Reconnecting...');
-            connect();
-        }
-    }, 5000);
+//    setInterval(function() {
+//        if(!WS) {
+//            self.log('Reconnecting...');
+//            connect();
+//        }
+//    }, 5000);
 }
 
 Automated.prototype.updateBalance = function() {
@@ -419,10 +417,12 @@ Automated.prototype.updateHistory = function() {
 };
 
 Automated.prototype.updateStats = function() {
-    this.stats.balance = parseInt(this.balance) - parseInt(this.starting_balance);
+    this.stats.profit = parseInt(this.balance) - parseInt(this.starting_balance);
     this.menu.statistics.wins.innerHTML = this.stats.wins;
-    this.menu.statistics.loses.innerHTML = this.stats.loses;
-    this.menu.statistics.balance.innerHTML = this.stats.balance;
+    this.menu.statistics.losses.innerHTML = this.stats.losses;
+    this.menu.statistics.profit.innerHTML = this.stats.profit;
+    this.menu.statistics.biggestbet.innerHTML = this.stats.biggestbet;
+    this.menu.statistics.minreached.innerHTML = this.stats.minreached;
     return true;
 };
 
@@ -449,22 +449,25 @@ Automated.prototype.bet = function(amount, color) {
         color = this.history[this.history.length - 1];
     }
 
-    //if (['green', 'red', 'black'].indexOf(color) < 5000 || amount > this.balance || amount <= 5000) {
-    //    this.log('Can\t place a bet, Missing balance.');
-     //   this.last_result = 'invalid bet';
-      //  this.waiting_for_bet = false;
-       // this.stop();
-       // return false;
-    //}
-
     if (this.balance - amount < this.min_balance) {
         this.log('Reached minimal balance!');
         this.last_result = 'reached min balance';
+        self.stats.minreached += 1;
         if (this.stop_on_min_balance || this.balance - this.base_bet < this.min_balance) {
             this.stop();
         }
         this.waiting_for_bet = false;
         return false;
+    }
+    
+    var maxstopon5 = 0;
+    for(int i = 0; i < 5; i++) {
+    	this.maxstopon5 += self.base_bet * 2;
+    }
+    if(self.stopon5 && amount >= this.maxstopon5) {
+    	this.log('Max bet reached!');
+    	this.last_result = 'Max bet reached';
+    	return false;
     }
 
     bet_input.value = amount;
@@ -485,6 +488,9 @@ Automated.prototype.bet = function(amount, color) {
                         } else {
                             if (self.debug) { self.logdebug('Bet accepted!'); }
                             self.last_bet = amount;
+                            if(amount > self.stats.biggestbet) {
+                            	self.stats.biggestbet = amount;
+                            }
                             self.bet_history.push(amount);
                             self.last_color = color;
                             self.waiting_for_bet = false;
@@ -543,7 +549,7 @@ Automated.prototype.play = function() {
             } else {
                 self.last_result = 'lose';
                 self.log('Lose!');
-                self.stats.loses += 1;
+                self.stats.losses += 1;
                 if (self.old_method === 'martingale') {
                     self.bet(self.last_bet * 2);
                 } else if (self.old_method === 'great martingale') {

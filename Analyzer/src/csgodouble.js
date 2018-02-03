@@ -24,6 +24,7 @@ var base_bet = 5;
 var safe_bet_amount = 6;
 var default_color = 'red';
 var default_method = 'martingale';
+var stopon5 = false;
 
 var colors = {
     'green': [0],
@@ -73,6 +74,7 @@ function Automated() {
     this.debug = debug;
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
+	this.stopon5 = stopon5;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
@@ -164,7 +166,10 @@ function Automated() {
         '</div>' +
         '<div class="checkbox automated-hide-on-green">' +
             '<label><input class="" id="automated-calculate-safe-bet" type="checkbox" ' + (this.calculate_safe_bet ? 'checked' : '') + '> Calculate base bet from given "Failsafe value", the formula is [base bet] = floor( [balance] / 2 ^ ( [failsafe value] + 1) ) </label>' +
-        '</div>'
+        '</div>' +
+        '<div class="checkbox">' +
+        	'<label><input class="" id="automated-stopon5" type="checkbox" ' + (this.stopon5 ? 'checked' : '') + '> Stop on 5x increasing the Basebet</label>' +
+        '</div>' +
     document.getElementsByClassName('well')[1].appendChild(menu);
 
     this.menu = {
@@ -173,8 +178,7 @@ function Automated() {
         'abort': document.getElementById('automated-abort'),
         'basebet': document.getElementById('automated-base-bet'),
         'minbalance': document.getElementById('automated-min-balance'),
-        'debug': document.getElementById('automated-debug'),
-        'simulation': document.getElementById('automated-simulation'),
+        'stopon5' : document.getElementById('automated-stopon5'),
         'stoponminbalance': document.getElementById('automated-stop-on-min-balance'),
         'red': document.getElementById('automated-red'),
         'black': document.getElementById('automated-black'),
@@ -264,6 +268,10 @@ function Automated() {
 		self.calculate_safe_bet = self.menu.calculatesafebet.checked;
 		self.menu.basebet.disabled = self.menu.calculatesafebet.checked;
 		self.menu.safebetamount.disabled = !self.menu.calculatesafebet.checked;
+	};
+	
+	this.menu.stopon5.onchange = function() {
+		self.stopon5 = self.menu.stopon5.checked;
 	};
 
     // WTF is this shit below? >,.,<
@@ -450,6 +458,16 @@ Automated.prototype.bet = function(amount, color) {
         }
         this.waiting_for_bet = false;
         return false;
+    }
+    
+    var maxstopon5 = 0;
+    for(int i = 0; i < 5; i++) {
+    	this.maxstopon5 += self.base_bet * 2;
+    }
+    if(self.stopon5 && amount >= this.maxstopon5) {
+    	this.log('Max bet reached!');
+    	this.last_result = 'Max bet reached';
+    	return false;
     }
 
     bet_input.value = amount;
