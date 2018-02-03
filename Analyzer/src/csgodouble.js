@@ -78,7 +78,7 @@ function Automated() {
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
 	this.stopon5 = stopon5;
-	this.initial_bet = initial_betbase_bet;
+	this.initial_bet = base_bet;
 	this.max_bet = max_bet;
 	this.afterparty = afterparty;
 
@@ -249,6 +249,9 @@ function Automated() {
         var value = parseInt(self.menu.basebet.value);
         if (!isNaN(value)) {
             self.base_bet = value;
+            self.initial_bet = value;
+            
+            self.update_max_bet();
         }
     };
 
@@ -598,12 +601,7 @@ Automated.prototype.start = function() {
     
     this.initial_bet = this.base_bet;
     
-    // Max Bet handling
-    var maxstopon5 = 0;
-    for(var i = 0; i < 5; i++) {
-    	this.maxstopon5 = (this.initial_bet * 2);
-    }
-    this.log('Max Bet is: ' + this.maxstopon5);
+    this.update_max_bet();
     
     // Actual start
     this.old_base = this.base_bet;
@@ -655,6 +653,15 @@ Automated.prototype.stop = function(abort) {
         self.menu.start.disabled = false;
     }, 1); // Next tick
 };
+
+Automated.prototype.update_max_bet = function() {
+	// Max Bet handling
+    var maxstopon5 = 0;
+    for(var i = 0; i < 5; i++) {
+    	this.maxstopon5 = (this.initial_bet * 2);
+    }
+    this.log('Max Bet is: ' + this.maxstopon5);
+}
 
 Automated.prototype.log = function(message) {
     chat('alert', '[Automated] ' + message);
