@@ -471,19 +471,22 @@ Automated.prototype.bet = function(amount, color) {
         this.waiting_for_bet = false;
         return false;
     }
-    
-    var maxstopon5 = 0;
-    for(var i = 0; i < 5; i++) {
-    	this.maxstopon5 += this.initial_bet * 2;
+
+    if(self.stopon5) {
+	    var maxstopon5 = 0;
+	    for(var i = 0; i < 5; i++) {
+	    	this.maxstopon5 += (this.initial_bet * 2);
+	    }
+	    this.log('Max Bet is: ' + this.maxstopon5);
+	    
+	    if(amount > this.maxstopon5) {
+	    	this.log('Max bet reached!');
+	    	this.last_result = 'Max bet reached';
+	    	this.base_bet = this.initial_bet;
+	    	return true;
+	    }
     }
-    this.log('Max Bet is: ' + this.maxstopon5);
     
-    if(self.stopon5 && amount > this.maxstopon5) {
-    	this.log('Max bet reached!');
-    	this.last_result = 'Max bet reached';
-    	this.base_bet = this.initial_bet;
-    	return true;
-    }
 
     bet_input.value = amount;
 
