@@ -175,8 +175,8 @@ function Automated() {
         	'<label><input class="" id="automated-stopon5" type="checkbox" ' + (this.stopon5 ? 'checked' : '') + '> Stop on 5x increasing the Basebet</label>' +
         '</div>' +
         '<div class="checkbox">' +
-    	'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
-    '</div>' +
+    		'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
+    	'</div>' +
     document.getElementsByClassName('well')[1].appendChild(menu);
 
     this.menu = {
@@ -476,7 +476,7 @@ Automated.prototype.bet = function(amount, color) {
     for(var i = 0; i < 5; i++) {
     	this.maxstopon5 += this.initial_bet * 2;
     }
-    this.log('Max Bet is: ' this.maxstopon5);
+    this.log('Max Bet is: ' + this.maxstopon5);
     
     if(self.stopon5 && amount > this.maxstopon5) {
     	this.log('Max bet reached!');
