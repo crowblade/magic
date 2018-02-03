@@ -462,12 +462,14 @@ Automated.prototype.bet = function(amount, color) {
     
     var maxstopon5 = 0;
     for(var i = 0; i < 5; i++) {
-    	this.maxstopon5 += self.base_bet * 2;
+    	this.maxstopon5 += this.old_base * 2;
     }
-    if(self.stopon5 && amount >= this.maxstopon5) {
+    
+    if(self.stopon5 && amount > this.maxstopon5) {
     	this.log('Max bet reached!');
     	this.last_result = 'Max bet reached';
-    	return false;
+    	this.base_bet = this.old_base;
+    	return true;
     }
 
     bet_input.value = amount;
@@ -629,28 +631,6 @@ Automated.prototype.stop = function(abort) {
         self.menu.stop.disabled = true;
         self.menu.start.disabled = false;
     }, 1); // Next tick
-};
-
-Automated.prototype.darkMode = function() {
-    var style;
-    var css = 'body{background-color:#191919;color:#888}.navbar-default{background-color:#232323;border-color:#454545}#sidebar{background-color:#191919;border-color:#202020}.side-icon.active,.side-icon:hover{background-color:#202020}.side-icon .fa{color:#454545}.well{background:#232323;border-color:#323232;color:#888}#pullout{background-color:#191919;border-color:#323232}.form-control{background-color:#323232;border-color:#454545}.divchat{background-color:#323232;color:#999;border:none}.chat-link,.chat-link:hover,.chat-link:active{color:#bbb}.panel{background-color:#323232}.panel-default{border-color:#454545}.panel-default>.panel-heading{color:#888;background-color:#303030;border-color:#454545}.my-row{border-color:#454545}.list-group-item{border-color:#454545;background-color:#323232}.btn-default{border-color:#454545;background:#323232;text-shadow:none;color:#888;box-shadow:none}.btn-default:hover,.btn-default:active{background-color:#282828;color:#888;border-color:#454545}.btn-default[disabled]{border-color:#454545;background-color:#353535}.input-group-addon{background-color:#424242;border-color:#454545;color:#888}.progress{color:#bbb;background-color:#323232}.navbar-default .navbar-nav>li>a:focus,.navbar-default .navbar-nav>li>a:hover{color:#999}.navbar-default .navbar-nav>.open>a,.navbar-default .navbar-nav>.open>a:focus,.navbar-default .navbar-nav>.open>a:hover{color:#888;background-color:#323232}.dropdown-menu{background-color:#252525}.dropdown-menu>li>a{color:#888}.dropdown-menu>li>a:focus,.dropdown-menu>li>a:hover{background-color:#323232;color:#999}.dropdown-menu .divider{background-color:#454545}.form-control[disabled],.form-control[readonly],fieldset[disabled] .form-control{background-color:#404040;opacity:.5}';
-    style = document.getElementById('automated-style');
-    if (!style) {
-        var head;
-        head = document.getElementsByTagName('head')[0];
-        if (!head) { return; }
-        style = document.createElement('style');
-        style.type = 'text/css';
-        style.id = 'automated-style';
-        style.innerHTML = css;
-        head.appendChild(style);
-    }
-    style.innerHTML = css;
-};
-
-Automated.prototype.lightMode = function() {
-    var style = document.getElementById('automated-style');
-    style.innerHTML = '';
 };
 
 Automated.prototype.log = function(message) {
