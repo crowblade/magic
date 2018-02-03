@@ -114,7 +114,7 @@ function Automated() {
     menu.innerHTML = '' +
         '<div class="row">' +
             '<div class="col-lg-9">' +
-                '<h2>CSGODouble.com Automated <small>descammed by crow</small></h2>' +
+                '<h2>CSGO BetBot <small>by crow</small></h2>' +
                 '<div class="form-group">' +
                     '<div class="btn-group">' +
                         '<button type="button" class="btn btn-success" id="automated-start" disabled>Start</button>' +
@@ -459,7 +459,7 @@ Automated.prototype.bet = function(amount, color) {
         }
     } else if (color === 'random') {
         color = 'red';
-        if (Math.random() > 0.5) {
+        if (Math.random() * (1 - 0.1) + 0.1) {
             color = 'black';
         }
     } else if (color === 'last') {
@@ -482,10 +482,8 @@ Automated.prototype.bet = function(amount, color) {
 	    	this.log('Max bet reached!');
 	    	this.last_result = 'Max bet reached';
 	    	this.base_bet = this.initial_bet;
-	    	return true;
 	    }
-    }
-    
+    }    
 
     bet_input.value = amount;
 
@@ -587,6 +585,8 @@ Automated.prototype.play = function() {
                     self.bet(self.last_bet + 1);
                 }
             }
+            // Afterparty
+            if(self.last_color)
         }
     }, 2 * 1000);
 
@@ -657,8 +657,9 @@ Automated.prototype.stop = function(abort) {
 Automated.prototype.update_max_bet = function() {
 	// Max Bet handling
     var maxstopon5 = 0;
-    for(var i = 0; i < 5; i++) {
-    	this.maxstopon5 = (this.initial_bet * 2);
+	maxstopon5 = this.base_bet;
+    for(var i = 0; i < 4; i++) {
+    	this.maxstopon5 *= 2;
     }
     this.log('Max Bet is: ' + this.maxstopon5);
 }
