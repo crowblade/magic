@@ -3,15 +3,6 @@
 // @description     An script that automates csgodouble.com betting using martingale system.
 // @namespace       automated@mole
 // @version         1.40
-// @author          Chiraq, descammed by crowblade
-// @match           http://www.csgodouble.com/
-// @match           http://www.csgodouble.com/index.php
-// @match           http://csgodouble.com/
-// @match           http://csgodouble.com/index.php
-// @match           http://csgopolygon.com/
-// @match           http://csgopolygon.com/index.php
-// @match           http://www.csgopolygon.com/
-// @match           http://www.csgopolygon.com/index.php
 // @run-at          document-end
 // @grant           none
 
@@ -26,7 +17,6 @@ var default_color = 'red';
 var default_method = 'martingale';
 var stopon5 = false;
 var initial_bet = 5;
-var max_bet = 0;
 var afterparty = false;
 
 var colors = {
@@ -79,7 +69,6 @@ function Automated() {
 	this.calculate_safe_bet = calculate_safe_bet;
 	this.stopon5 = stopon5;
 	this.initial_bet = base_bet;
-	this.max_bet = max_bet;
 	this.afterparty = afterparty;
 
     this.base_bet = base_bet;
@@ -250,8 +239,6 @@ function Automated() {
         if (!isNaN(value)) {
             self.base_bet = value;
             self.initial_bet = value;
-            
-            self.update_max_bet();
         }
     };
 
@@ -475,15 +462,7 @@ Automated.prototype.bet = function(amount, color) {
         }
         this.waiting_for_bet = false;
         return false;
-    }
-
-    if(self.stopon5) {	    
-	    if(amount > this.maxstopon5) {
-	    	this.log('Max bet reached!');
-	    	this.last_result = 'Max bet reached';
-	    	this.base_bet = this.initial_bet;
-	    }
-    }    
+    }   
 
     bet_input.value = amount;
 
@@ -586,7 +565,12 @@ Automated.prototype.play = function() {
                 }
             }
             // Afterparty
-            // last_color = this.history[this.history.length - 1]
+            var last_color = '';
+            last_color = this.history[this.history.length - 1];
+            if(last_color === 'green') {
+            	// play next three times green with lower bet
+            	
+            }
         }
     }, 2 * 1000);
 
@@ -600,8 +584,6 @@ Automated.prototype.start = function() {
     }
     
     this.initial_bet = this.base_bet;
-    
-    this.update_max_bet();
     
     // Actual start
     this.old_base = this.base_bet;
@@ -653,16 +635,6 @@ Automated.prototype.stop = function(abort) {
         self.menu.start.disabled = false;
     }, 1); // Next tick
 };
-
-Automated.prototype.update_max_bet = function() {
-	// Max Bet handling
-    var maxstopon5 = 0;
-	maxstopon5 = this.base_bet;
-    for(var i = 0; i < 4; i++) {
-    	this.maxstopon5 *= 2;
-    }
-    this.log('Max Bet is: ' + this.maxstopon5);
-}
 
 Automated.prototype.log = function(message) {
     chat('alert', '[Automated] ' + message);

@@ -3,15 +3,6 @@
 // @description     An script that automates csgodouble.com betting using martingale system.
 // @namespace       automated@mole
 // @version         1.40
-// @author          Chiraq, descammed by crowblade
-// @match           http://www.csgodouble.com/
-// @match           http://www.csgodouble.com/index.php
-// @match           http://csgodouble.com/
-// @match           http://csgodouble.com/index.php
-// @match           http://csgopolygon.com/
-// @match           http://csgopolygon.com/index.php
-// @match           http://www.csgopolygon.com/
-// @match           http://www.csgopolygon.com/index.php
 // @run-at          document-end
 // @grant           none
 
@@ -25,6 +16,8 @@ var safe_bet_amount = 6;
 var default_color = 'red';
 var default_method = 'martingale';
 var stopon5 = false;
+var initial_bet = 5;
+var afterparty = false;
 
 var colors = {
     'green': [0],
@@ -36,9 +29,9 @@ var balance = document.getElementById('balance');
 var roll_history = document.getElementById('past');
 var bet_input = document.getElementById('betAmount');
 var bet_buttons = {
-    'green': document.getElementById('panel0-0-b').childNodes[1].childNodes[1],
-    'red': document.getElementById('panel1-7-b').childNodes[1].childNodes[1],
-    'black': document.getElementById('panel8-14-b').childNodes[1].childNodes[1]
+    'green': document.getElementById('panel0-0').childNodes[1].childNodes[1],
+    'red': document.getElementById('panel1-7').childNodes[1].childNodes[1],
+    'black': document.getElementById('panel8-14').childNodes[1].childNodes[1]
 };
 
 Array.prototype.equals = function(array) {
@@ -75,6 +68,8 @@ function Automated() {
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
 	this.stopon5 = stopon5;
+	this.initial_bet = base_bet;
+	this.afterparty = afterparty;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
@@ -108,7 +103,7 @@ function Automated() {
     menu.innerHTML = '' +
         '<div class="row">' +
             '<div class="col-lg-9">' +
-                '<h2>CSGODouble.com Automated <small>descammed by crow</small></h2>' +
+                '<h2>CSGO BetBot <small>by crow</small></h2>' +
                 '<div class="form-group">' +
                     '<div class="btn-group">' +
                         '<button type="button" class="btn btn-success" id="automated-start" disabled>Start</button>' +
@@ -170,6 +165,9 @@ function Automated() {
         '<div class="checkbox">' +
         	'<label><input class="" id="automated-stopon5" type="checkbox" ' + (this.stopon5 ? 'checked' : '') + '> Stop on 5x increasing the Basebet</label>' +
         '</div>' +
+        '<div class="checkbox">' +
+    		'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
+    	'</div>' +
     document.getElementsByClassName('well')[1].appendChild(menu);
 
     this.menu = {
@@ -179,6 +177,7 @@ function Automated() {
         'basebet': document.getElementById('automated-base-bet'),
         'minbalance': document.getElementById('automated-min-balance'),
         'stopon5' : document.getElementById('automated-stopon5'),
+        'afterparty' : document.getElementById('automated-afterparty'),
         'stoponminbalance': document.getElementById('automated-stop-on-min-balance'),
         'red': document.getElementById('automated-red'),
         'black': document.getElementById('automated-black'),
@@ -239,6 +238,7 @@ function Automated() {
         var value = parseInt(self.menu.basebet.value);
         if (!isNaN(value)) {
             self.base_bet = value;
+            self.initial_bet = value;
         }
     };
 
@@ -272,6 +272,10 @@ function Automated() {
 	
 	this.menu.stopon5.onchange = function() {
 		self.stopon5 = self.menu.stopon5.checked;
+	};
+	
+	this.menu.afterparty.onchange = function() {
+		self.afterparty = self.menu.afterparty.checked;
 	};
 
     // WTF is this shit below? >,.,<
@@ -442,7 +446,7 @@ Automated.prototype.bet = function(amount, color) {
         }
     } else if (color === 'random') {
         color = 'red';
-        if (Math.random() > 0.5) {
+        if ((Math.random() * (1 - 0.1) + 0.1) > 0.5) {
             color = 'black';
         }
     } else if (color === 'last') {
@@ -458,17 +462,7 @@ Automated.prototype.bet = function(amount, color) {
         }
         this.waiting_for_bet = false;
         return false;
-    }
-    
-    var maxstopon5 = 0;
-    for(int i = 0; i < 5; i++) {
-    	this.maxstopon5 += self.base_bet * 2;
-    }
-    if(self.stopon5 && amount >= this.maxstopon5) {
-    	this.log('Max bet reached!');
-    	this.last_result = 'Max bet reached';
-    	return false;
-    }
+    }   
 
     bet_input.value = amount;
 
@@ -553,7 +547,7 @@ Automated.prototype.play = function() {
                 if (self.old_method === 'martingale') {
                     self.bet(self.last_bet * 2);
                 } else if (self.old_method === 'great martingale') {
-                    self.bet(self.last_bet * 2 + self.old_base);
+                    self.bet(self.last_bet * 2 + self.initial_bet);
                 } else if (self.old_method === 'green') {
                     var bet_value = 0;
                     if (self.bet_history[self.bet_history.length - 1] === 1) {
@@ -570,6 +564,13 @@ Automated.prototype.play = function() {
                     self.bet(self.last_bet + 1);
                 }
             }
+            // Afterparty
+            var last_color = '';
+            last_color = this.history[this.history.length - 1];
+            if(last_color === 'green') {
+            	// play next three times green with lower bet
+            	
+            }
         }
     }, 2 * 1000);
 
@@ -581,6 +582,10 @@ Automated.prototype.start = function() {
         self.base_bet = Math.floor(self.balance / Math.pow(2, self.safe_bet_amount + 1));
         self.menu.basebet.value = self.base_bet;
     }
+    
+    this.initial_bet = this.base_bet;
+    
+    // Actual start
     this.old_base = this.base_bet;
     this.old_method = this.method;
     if (this.updateAll()) {
@@ -629,28 +634,6 @@ Automated.prototype.stop = function(abort) {
         self.menu.stop.disabled = true;
         self.menu.start.disabled = false;
     }, 1); // Next tick
-};
-
-Automated.prototype.darkMode = function() {
-    var style;
-    var css = 'body{background-color:#191919;color:#888}.navbar-default{background-color:#232323;border-color:#454545}#sidebar{background-color:#191919;border-color:#202020}.side-icon.active,.side-icon:hover{background-color:#202020}.side-icon .fa{color:#454545}.well{background:#232323;border-color:#323232;color:#888}#pullout{background-color:#191919;border-color:#323232}.form-control{background-color:#323232;border-color:#454545}.divchat{background-color:#323232;color:#999;border:none}.chat-link,.chat-link:hover,.chat-link:active{color:#bbb}.panel{background-color:#323232}.panel-default{border-color:#454545}.panel-default>.panel-heading{color:#888;background-color:#303030;border-color:#454545}.my-row{border-color:#454545}.list-group-item{border-color:#454545;background-color:#323232}.btn-default{border-color:#454545;background:#323232;text-shadow:none;color:#888;box-shadow:none}.btn-default:hover,.btn-default:active{background-color:#282828;color:#888;border-color:#454545}.btn-default[disabled]{border-color:#454545;background-color:#353535}.input-group-addon{background-color:#424242;border-color:#454545;color:#888}.progress{color:#bbb;background-color:#323232}.navbar-default .navbar-nav>li>a:focus,.navbar-default .navbar-nav>li>a:hover{color:#999}.navbar-default .navbar-nav>.open>a,.navbar-default .navbar-nav>.open>a:focus,.navbar-default .navbar-nav>.open>a:hover{color:#888;background-color:#323232}.dropdown-menu{background-color:#252525}.dropdown-menu>li>a{color:#888}.dropdown-menu>li>a:focus,.dropdown-menu>li>a:hover{background-color:#323232;color:#999}.dropdown-menu .divider{background-color:#454545}.form-control[disabled],.form-control[readonly],fieldset[disabled] .form-control{background-color:#404040;opacity:.5}';
-    style = document.getElementById('automated-style');
-    if (!style) {
-        var head;
-        head = document.getElementsByTagName('head')[0];
-        if (!head) { return; }
-        style = document.createElement('style');
-        style.type = 'text/css';
-        style.id = 'automated-style';
-        style.innerHTML = css;
-        head.appendChild(style);
-    }
-    style.innerHTML = css;
-};
-
-Automated.prototype.lightMode = function() {
-    var style = document.getElementById('automated-style');
-    style.innerHTML = '';
 };
 
 Automated.prototype.log = function(message) {
