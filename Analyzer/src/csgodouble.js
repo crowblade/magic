@@ -518,6 +518,7 @@ Automated.prototype.play = function() {
     this.game = setInterval(function() {
         var history = self.history;
         if (!self.waiting_for_bet && self.updateAll() && !history.equals(self.history)) {
+        	console.log('Last roll: ' + self.history[self.history.length - 1]);
             self.waiting_for_bet = true;
             if (self.last_color === null) {
                 self.bet(self.base_bet);
