@@ -25,13 +25,13 @@ var colors = {
     'black': [8, 9, 10, 11, 12, 13, 14]
 };
 
-var balance = document.getElementById('balance');
+var balance = document.getElementById('balance_r');
 var roll_history = document.getElementById('past');
 var bet_input = document.getElementById('betAmount');
 var bet_buttons = {
-    'green': document.getElementById('panel0-0').childNodes[1].childNodes[1],
-    'red': document.getElementById('panel1-7').childNodes[1].childNodes[1],
-    'black': document.getElementById('panel8-14').childNodes[1].childNodes[1]
+    'green': document.getElementById('panel0-0-b').childNodes[1].childNodes[1],
+    'red': document.getElementById('panel1-7-b').childNodes[1].childNodes[1]],
+    'black': document.getElementById('panel8-14-b').childNodes[1].childNodes[1]
 };
 
 Array.prototype.equals = function(array) {
@@ -168,7 +168,7 @@ function Automated() {
         '<div class="checkbox">' +
     		'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
     	'</div>' +
-    document.getElementsByClassName('well')[1].appendChild(menu);
+    document.getElementsByClassName('well text-center')[1].appendChild(menu);
 
     this.menu = {
         'start': document.getElementById('automated-start'),
@@ -518,6 +518,7 @@ Automated.prototype.play = function() {
     this.game = setInterval(function() {
         var history = self.history;
         if (!self.waiting_for_bet && self.updateAll() && !history.equals(self.history)) {
+        	console.log('Last roll: ' + self.history[self.history.length - 1]);
             self.waiting_for_bet = true;
             if (self.last_color === null) {
                 self.bet(self.base_bet);
