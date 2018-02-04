@@ -15,7 +15,6 @@ var base_bet = 5;
 var safe_bet_amount = 6;
 var default_color = 'red';
 var default_method = 'martingale';
-var stopon5 = false;
 var initial_bet = 5;
 var afterparty = false;
 
@@ -67,7 +66,6 @@ function Automated() {
     this.debug = debug;
     this.stop_on_min_balance = stop_on_min_balance;
 	this.calculate_safe_bet = calculate_safe_bet;
-	this.stopon5 = stopon5;
 	this.initial_bet = base_bet;
 	this.afterparty = afterparty;
 
@@ -163,9 +161,6 @@ function Automated() {
             '<label><input class="" id="automated-calculate-safe-bet" type="checkbox" ' + (this.calculate_safe_bet ? 'checked' : '') + '> Calculate base bet from given "Failsafe value", the formula is [base bet] = floor( [balance] / 2 ^ ( [failsafe value] + 1) ) </label>' +
         '</div>' +
         '<div class="checkbox">' +
-        	'<label><input class="" id="automated-stopon5" type="checkbox" ' + (this.stopon5 ? 'checked' : '') + '> Stop on 5x increasing the Basebet</label>' +
-        '</div>' +
-        '<div class="checkbox">' +
     		'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
     	'</div>' +
     document.getElementsByClassName('well')[1].appendChild(menu);
@@ -176,7 +171,6 @@ function Automated() {
         'abort': document.getElementById('automated-abort'),
         'basebet': document.getElementById('automated-base-bet'),
         'minbalance': document.getElementById('automated-min-balance'),
-        'stopon5' : document.getElementById('automated-stopon5'),
         'afterparty' : document.getElementById('automated-afterparty'),
         'stoponminbalance': document.getElementById('automated-stop-on-min-balance'),
         'red': document.getElementById('automated-red'),
@@ -268,10 +262,6 @@ function Automated() {
 		self.calculate_safe_bet = self.menu.calculatesafebet.checked;
 		self.menu.basebet.disabled = self.menu.calculatesafebet.checked;
 		self.menu.safebetamount.disabled = !self.menu.calculatesafebet.checked;
-	};
-	
-	this.menu.stopon5.onchange = function() {
-		self.stopon5 = self.menu.stopon5.checked;
 	};
 	
 	this.menu.afterparty.onchange = function() {
