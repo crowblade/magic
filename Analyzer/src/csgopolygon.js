@@ -30,7 +30,7 @@ var roll_history = document.getElementById('past');
 var bet_input = document.getElementById('betAmount');
 var bet_buttons = {
     'green': document.getElementById('panel0-0-b').childNodes[1].childNodes[1],
-    'red': document.getElementById('panel1-7-b').childNodes[1].childNodes[1]],
+    'red': document.getElementById('panel11-7-b').childNodes[1].childNodes[1],
     'black': document.getElementById('panel8-14-b').childNodes[1].childNodes[1]
 };
 
@@ -168,7 +168,7 @@ function Automated() {
         '<div class="checkbox">' +
     		'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
     	'</div>' +
-    document.getElementsByClassName('well text-center')[1].appendChild(menu);
+    document.getElementsByClassName('well text-center')[0].appendChild(menu);
 
     this.menu = {
         'start': document.getElementById('automated-start'),
