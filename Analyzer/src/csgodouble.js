@@ -17,6 +17,7 @@ var default_color = 'red';
 var default_method = 'martingale';
 var initial_bet = 5;
 var afterparty = false;
+var afterpartyactive = false;
 var playgreen = 3;
 
 var colors = {
@@ -560,15 +561,15 @@ Automated.prototype.play = function() {
             // Afterparty
             var last_color = '';
             last_color = this.history[this.history.length - 1];
-            if(last_color === 'green' || this.afterparty) {
+            if(this.afterparty && (last_color === 'green' || this.afterpartyactive)) {
             	// play next three times green
             	this.playgreen--;
             	if(this.playgreen > 0) {
-            		this.afterparty = true;
+            		this.afterpartyactive = true;
             		self.bet(initial_bet, 'green');
             	}
             	else {
-            		this.afterparty = false;
+            		this.afterpartyactive = false;
             		this.playgreen = 3;
             	}
             }
