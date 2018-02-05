@@ -70,6 +70,7 @@ function Automated() {
 	this.calculate_safe_bet = calculate_safe_bet;
 	this.initial_bet = base_bet;
 	this.afterparty = afterparty;
+	this.afterpartyactive = afterpartyactive;
 	this.playgreen = playgreen;
 
     this.base_bet = base_bet;
