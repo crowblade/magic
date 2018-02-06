@@ -311,6 +311,8 @@ Rollit.prototype.updateStats = function() {
     this.menu.statistics.profit.innerHTML = this.stats.profit;
     this.menu.statistics.biggestbet.innerHTML = this.stats.biggestbet;
     this.menu.statistics.minreached.innerHTML = this.stats.minreached;
+    this.menu.statistics.longesttrain_red.innerHTML = this.stats.longesttrain_red;
+    this.menu.statistics.longesttrain_black.innerHTML = this.stats.longesttrain_black;
     return true;
 };
 
