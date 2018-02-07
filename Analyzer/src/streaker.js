@@ -3,6 +3,8 @@
 var last_roll = '';
 var streak_red = 0;
 var streak_black = 0;
+var running_red = false;
+var running_black = false;
 
 var roll_history = document.getElementsByClassName('col-6 text-uppercase')[0];
 
@@ -19,6 +21,8 @@ function Streaker() {
 	this.streak_red = streak_red;
 	this.streak_black = streak_black;
 	this.history = [];
+	this.running_red = running_red;
+	this.running_black = running_black;
 	
 	this.stats = {
 			'lastroll': 0,
@@ -33,9 +37,9 @@ function Streaker() {
                 '<h2><small>Streak Analyzer by crow</small></h2>' +
                 '<div class="col-lg-3">' +
                     '<div>' +
-                    	'<p><b>Last roll: </b><span id="streaker_lastroll">' + this.stats.lastroll + '</span> - ' +
-                    	'<b>Streak Red: </b>' + this.stats.streak_red + ' - ' +
-                    	'<b>Streak Black: </b>' + this.stats.streak_black + '</p>' + 
+                    	'<p><b>Last roll: </b><span id="streaker_lastroll">' + this.stats.lastroll + '</span></p>' +
+                    	'<p><b>Streak Red: </b><span id="streaker_red">' + this.stats.streak_red + '</span></p>' +
+                    	'<p><b>Streak Black: </b><span id="streaker_black">' + this.stats.streak_black + '</span></p>' + 
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -43,10 +47,12 @@ function Streaker() {
     document.getElementsByClassName('mt-5 mb-4')[0].appendChild(menu);
     
     this.menu = {
-            'lastroll': document.getElementById('streaker_lastroll')
+            'lastroll': document.getElementById('streaker_lastroll'),
+            'longesttrain_red': document.getElementById('streaker_red'),
+            'longesttrain_black': document.getElementById('streaker_black'),
     }
 	
-    this.updater = setInterval(function() { // Update every 2 seconds
+    this.updater = setInterval(function() { 
         self.updateHistory();
         self.updateStats();
     }, 5 * 1000);
@@ -71,14 +77,27 @@ Streaker.prototype.updateHistory = function() {
     }
     
     this.last_roll = self.history[0];
+    
+    if(self.history[0] !== 'black' && )
+    
+    if(self.history[0] === 'red' && self.history[1] === 'red') {
+	    if(!this.running_black && !this.running_red) {
+	    	// Start redtrain
+	    	this.running_red = true;
+	    	this.streak_red++;
+	    }
+	    else if(this.running_red) {
+	    	
+	    }
+	}
 
     return this.history.length === 10;
 };
 
 Streaker.prototype.updateStats = function() {
 	this.menu.lastroll.innerHTML = this.last_roll;
-//    this.menu.statistics.longesttrain_red.innerHTML = this.stats.longesttrain_red;
-//    this.menu.statistics.longesttrain_black.innerHTML = this.stats.longesttrain_black;
+    this.menu.longesttrain_red.innerHTML = this.streak_red;
+    this.menu.longesttrain_black.innerHTML = this.streak_black;
     return true;
 };
 
