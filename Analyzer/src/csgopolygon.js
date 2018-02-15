@@ -17,6 +17,8 @@ var default_color = 'red';
 var default_method = 'martingale';
 var initial_bet = 5;
 var afterparty = false;
+var samecolorbet = 0;
+var maxsamecolor = 0;
 
 var colors = {
     'green': [0],
@@ -68,6 +70,8 @@ function Automated() {
 	this.calculate_safe_bet = calculate_safe_bet;
 	this.initial_bet = base_bet;
 	this.afterparty = afterparty;
+	this.samecolorbet = samecolorbet;
+	this.maxsamecolor = maxsamecolor;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
@@ -124,6 +128,7 @@ function Automated() {
                         '<button type="button" class="btn btn-default" id="automated-rainbow" ' + (this.color === 'rainbow' ? 'disabled' : '') + '>Rainbow</button>' +
                         '<button type="button" class="btn btn-default" id="automated-random" ' + (this.color === 'random' ? 'disabled' : '') + '>Random</button>' +
                         '<button type="button" class="btn btn-default" id="automated-last" ' + (this.color === 'last' ? 'disabled' : '') + '>Last winning</button>' +
+                        '<button type="button" class="btn btn-default" id="automated-raintrain" ' + (this.color === 'raintrain' ? 'disabled' : '') + '>raintrain</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -178,6 +183,7 @@ function Automated() {
         'rainbow': document.getElementById('automated-rainbow'),
         'random': document.getElementById('automated-random'),
         'last': document.getElementById('automated-last'),
+        'raintrain': document.getElementById('automated-raintrain'),
         'statistics': {
             'wins': document.getElementById('automated-stats-wins'),
             'losses': document.getElementById('automated-stats-loses'),
@@ -216,7 +222,6 @@ function Automated() {
 
     this.menu.start.onclick = function() {
 
-        // start(self.balance);
         self.start();
     };
 
@@ -250,10 +255,6 @@ function Automated() {
         }
     };
 
-    //this.menu.debug.onchange = function() {
-    //    self.debug = self.menu.debug.checked;
-    //};
-
     this.menu.stoponminbalance.onchange = function() {
         self.stop_on_min_balance = self.menu.stoponminbalance.checked;
     };
@@ -271,6 +272,7 @@ function Automated() {
     // WTF is this shit below? >,.,<
 
     this.menu.black.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = true;
         self.menu.red.disabled = false;
@@ -281,6 +283,7 @@ function Automated() {
     };
 
     this.menu.red.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = false;
         self.menu.red.disabled = true;
@@ -291,6 +294,7 @@ function Automated() {
     };
 
     this.menu.rainbow.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = true;
         self.menu.black.disabled = false;
         self.menu.red.disabled = false;
@@ -301,6 +305,7 @@ function Automated() {
     };
 
     this.menu.random.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = false;
         self.menu.red.disabled = false;
@@ -311,6 +316,7 @@ function Automated() {
     };
 
     this.menu.last.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = false;
         self.menu.red.disabled = false;
@@ -318,6 +324,17 @@ function Automated() {
         self.menu.last.disabled = true;
         self.color = 'last';
         self.log('Current mode: last');
+    };
+    
+    this.menu.raintrain.onclick = function() {
+    	self.menu.raintrain.disabled = true;
+        self.menu.rainbow.disabled = false;
+        self.menu.black.disabled = false;
+        self.menu.red.disabled = false;
+        self.menu.random.disabled = false;
+        self.menu.last.disabled = false;
+        self.color = 'raintrain';
+        self.log('Current mode: Rainbow Trains');
     };
 
     this.menu.martingale.onclick = function() {
@@ -441,6 +458,25 @@ Automated.prototype.bet = function(amount, color) {
         }
     } else if (color === 'last') {
         color = this.history[this.history.length - 1];
+    } else if (color === 'raintrain') {
+    	if(this.samecolorbet == 0) {
+    		// Start new train
+    		this.maxsamecolor = 10 + (Math.random() * (1 - 0.1) + 0.1 > 15);
+    		this.log('Trainlength: ' + this.maxsamecolor);
+    		this.samecolorbet++;
+    		var lastc = this.history[this.history.length - 1];
+    		color = (lastc === 'red' ? 'black' : 'red');
+    	}
+    	else {
+    		// Train going currently
+    		if(this.samecolorbet < this.maxsamecolor) {
+    			if (this.last_color) {
+    	            color = (this.last_color === 'red' ? 'black' : 'red');
+    	        } else {
+    	            color = this.default_color;
+    	        }
+    		}
+    	}
     }
 
     if (this.balance - amount < this.min_balance) {

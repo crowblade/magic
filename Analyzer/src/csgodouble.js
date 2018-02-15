@@ -19,6 +19,8 @@ var initial_bet = 5;
 var afterparty = false;
 var afterpartyactive = false;
 var playgreen = 3;
+var samecolorbet = 0;
+var maxsamecolor = 0;
 
 var colors = {
     'green': [0],
@@ -72,6 +74,8 @@ function Automated() {
 	this.afterparty = afterparty;
 	this.afterpartyactive = afterpartyactive;
 	this.playgreen = playgreen;
+	this.samecolorbet = samecolorbet;
+	this.maxsamecolor = maxsamecolor;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
@@ -128,6 +132,7 @@ function Automated() {
                         '<button type="button" class="btn btn-default" id="automated-rainbow" ' + (this.color === 'rainbow' ? 'disabled' : '') + '>Rainbow</button>' +
                         '<button type="button" class="btn btn-default" id="automated-random" ' + (this.color === 'random' ? 'disabled' : '') + '>Random</button>' +
                         '<button type="button" class="btn btn-default" id="automated-last" ' + (this.color === 'last' ? 'disabled' : '') + '>Last winning</button>' +
+                        '<button type="button" class="btn btn-default" id="automated-raintrain" ' + (this.color === 'raintrain' ? 'disabled' : '') + '>raintrain</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -182,6 +187,7 @@ function Automated() {
         'rainbow': document.getElementById('automated-rainbow'),
         'random': document.getElementById('automated-random'),
         'last': document.getElementById('automated-last'),
+        'raintrain': document.getElementById('automated-raintrain'),
         'statistics': {
             'wins': document.getElementById('automated-stats-wins'),
             'losses': document.getElementById('automated-stats-loses'),
@@ -275,6 +281,7 @@ function Automated() {
     // WTF is this shit below? >,.,<
 
     this.menu.black.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = true;
         self.menu.red.disabled = false;
@@ -285,6 +292,7 @@ function Automated() {
     };
 
     this.menu.red.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = false;
         self.menu.red.disabled = true;
@@ -295,6 +303,7 @@ function Automated() {
     };
 
     this.menu.rainbow.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = true;
         self.menu.black.disabled = false;
         self.menu.red.disabled = false;
@@ -305,6 +314,7 @@ function Automated() {
     };
 
     this.menu.random.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = false;
         self.menu.red.disabled = false;
@@ -315,6 +325,7 @@ function Automated() {
     };
 
     this.menu.last.onclick = function() {
+    	self.menu.raintrain.disabled = false;
         self.menu.rainbow.disabled = false;
         self.menu.black.disabled = false;
         self.menu.red.disabled = false;
@@ -322,6 +333,17 @@ function Automated() {
         self.menu.last.disabled = true;
         self.color = 'last';
         self.log('Current mode: last');
+    };
+    
+    this.menu.raintrain.onclick = function() {
+    	self.menu.raintrain.disabled = true;
+        self.menu.rainbow.disabled = false;
+        self.menu.black.disabled = false;
+        self.menu.red.disabled = false;
+        self.menu.random.disabled = false;
+        self.menu.last.disabled = false;
+        self.color = 'raintrain';
+        self.log('Current mode: Rainbow Trains');
     };
 
     this.menu.martingale.onclick = function() {
@@ -428,6 +450,10 @@ Automated.prototype.updateAll = function() {
     return this.updateBalance() && this.updateHistory() && this.updateStats();
 };
 
+Automated.prototype.starttrain = function() {
+	
+}
+
 Automated.prototype.bet = function(amount, color) {
     var self = this;
     color = color || this.color || this.default_color;
@@ -445,6 +471,38 @@ Automated.prototype.bet = function(amount, color) {
         }
     } else if (color === 'last') {
         color = this.history[this.history.length - 1];
+    } else if (color === 'raintrain') {
+    	if(this.samecolorbet == 0) {
+    		// Start new train
+    		this.maxsamecolor = 10 + (Math.random() * (1 - 0.1) + 0.1 > 15);
+    		this.log('Trainlength: ' + this.maxsamecolor);
+    		this.samecolorbet++;
+    		var lastc = this.history[this.history.length - 1];
+    		color = (lastc === 'red' ? 'black' : 'red');
+    	}
+    	else {
+    		// Train going currently
+    		if(this.samecolorbet < this.maxsamecolor) {
+    			this.samecolorbet++;
+    			this.log('Betting Number ' + this.samecolorbet + ' of ' + this.maxsamecolor + ' on current train.')
+    			if (this.last_color) {
+    	            color = (this.last_color === 'red' ? 'red' : 'black');
+    	        } else {
+    	            color = this.default_color;
+    	        }
+    		}
+    		else {
+    			// Train ending
+    			this.log('Train ended. Starting new one.')
+    			this.maxsamecolor = 0;
+    			this.samecolorbet = 0;
+    			this.maxsamecolor = 10 + (Math.random() * (1 - 0.1) + 0.1 > 15);
+        		this.log('Trainlength: ' + this.maxsamecolor);
+        		this.samecolorbet++;
+        		var lastc = this.history[this.history.length - 1];
+        		color = (lastc === 'red' ? 'black' : 'red');
+    		}
+    	}
     }
 
     if (this.balance - amount < this.min_balance) {
@@ -629,6 +687,8 @@ Automated.prototype.stop = function(abort) {
     var self = this;
     if (abort) { this.last_result = 'abort'; }
     this.stats.balance = parseInt(this.balance) - parseInt(this.starting_balance);
+    this.maxsamecolor = 0;
+    this.samecolorbet = 0;
     setTimeout(function() {
         clearInterval(self.game);
         self.game = null;
