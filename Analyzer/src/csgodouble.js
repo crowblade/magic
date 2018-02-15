@@ -474,7 +474,7 @@ Automated.prototype.bet = function(amount, color) {
     } else if (color === 'raintrain') {
     	if(this.samecolorbet == 0) {
     		// Start new train
-    		this.maxsamecolor = 10 + (Math.random() * (1 - 0.1) + 0.1 > 15);
+    		this.maxsamecolor = 10 + parseInt((Math.random() * (15 - 1) + 1));
     		this.log('Trainlength: ' + this.maxsamecolor);
     		this.samecolorbet++;
     		var lastc = this.history[this.history.length - 1];
@@ -496,7 +496,7 @@ Automated.prototype.bet = function(amount, color) {
     			this.log('Train ended. Starting new one.')
     			this.maxsamecolor = 0;
     			this.samecolorbet = 0;
-    			this.maxsamecolor = 10 + (Math.random() * (1 - 0.1) + 0.1 > 15);
+    			this.maxsamecolor = 10 + parseInt((Math.random() * (15 - 1) + 1));
         		this.log('Trainlength: ' + this.maxsamecolor);
         		this.samecolorbet++;
         		var lastc = this.history[this.history.length - 1];
