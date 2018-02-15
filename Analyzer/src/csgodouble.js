@@ -132,7 +132,7 @@ function Automated() {
                         '<button type="button" class="btn btn-default" id="automated-rainbow" ' + (this.color === 'rainbow' ? 'disabled' : '') + '>Rainbow</button>' +
                         '<button type="button" class="btn btn-default" id="automated-random" ' + (this.color === 'random' ? 'disabled' : '') + '>Random</button>' +
                         '<button type="button" class="btn btn-default" id="automated-last" ' + (this.color === 'last' ? 'disabled' : '') + '>Last winning</button>' +
-                        '<button type="button" class="btn btn-default" id="automated-raintrain" ' + (this.color === 'raintrain' ? 'disabled' : '') + '>raintrain</button>' +
+                        '<button type="button" class="btn btn-default" id="automated-raintrain" ' + (this.color === 'raintrain' ? 'disabled' : '') + '>Rainbow Trains</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -171,7 +171,7 @@ function Automated() {
         '</div>' +
         '<div class="checkbox">' +
     		'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
-    	'</div>' +
+    	'</div>';
     document.getElementsByClassName('well')[1].appendChild(menu);
 
     this.menu = {
