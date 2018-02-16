@@ -21,6 +21,7 @@ var afterpartyactive = false;
 var playgreen = 3;
 var samecolorbet = 0;
 var maxsamecolor = 0;
+var trainchanged = false;
 
 var colors = {
     'green': [0],
@@ -76,6 +77,7 @@ function Automated() {
 	this.playgreen = playgreen;
 	this.samecolorbet = samecolorbet;
 	this.maxsamecolor = maxsamecolor;
+	this.trainchanged = trainchanged;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
@@ -474,7 +476,7 @@ Automated.prototype.bet = function(amount, color) {
     } else if (color === 'raintrain') {
     	if(this.samecolorbet == 0) {
     		// Start new train
-    		this.maxsamecolor = 10 + parseInt((Math.random() * (15 - 1) + 1));
+    		this.maxsamecolor = 7 + parseInt((Math.random() * (10 - 1) + 1));
     		this.log('Trainlength: ' + this.maxsamecolor);
     		this.samecolorbet++;
     		var lastc = this.history[this.history.length - 1];
@@ -490,15 +492,21 @@ Automated.prototype.bet = function(amount, color) {
     	        } else {
     	            color = this.default_color;
     	        }
+    			if(!this.trainchanged && (amount > (5 * (this.initial_bet * 2)))) {
+    				// Bet too high, change color
+    				color = (color === 'red' ? 'black' : 'red');
+    				this.trainchanged = true;
+    			}
     		}
     		else {
     			// Train ending
     			this.log('Train ended. Starting new one.')
     			this.maxsamecolor = 0;
     			this.samecolorbet = 0;
-    			this.maxsamecolor = 10 + parseInt((Math.random() * (15 - 1) + 1));
-        		this.log('Trainlength: ' + this.maxsamecolor);
-        		this.samecolorbet++;
+    			this.trainchanged = false;
+//    			this.maxsamecolor = 10 + parseInt((Math.random() * (15 - 1) + 1));
+//        		this.log('Trainlength: ' + this.maxsamecolor);
+//        		this.samecolorbet++;
         		var lastc = this.history[this.history.length - 1];
         		color = (lastc === 'red' ? 'black' : 'red');
     		}
@@ -689,6 +697,7 @@ Automated.prototype.stop = function(abort) {
     this.stats.balance = parseInt(this.balance) - parseInt(this.starting_balance);
     this.maxsamecolor = 0;
     this.samecolorbet = 0;
+    this.trainchanged = false;
     setTimeout(function() {
         clearInterval(self.game);
         self.game = null;
