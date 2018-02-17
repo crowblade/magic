@@ -631,12 +631,14 @@ Automated.prototype.play = function() {
 //            last_color = this.history[this.history.length - 1];
             if(this.afterparty && (self.last_color === 'green' || this.afterpartyactive)) {
             	// play next three times green
+            	this.log('Afterparty! Betting on green...')
             	this.playgreen--;
             	if(this.playgreen > 0) {
             		this.afterpartyactive = true;
             		self.bet(initial_bet, 'green');
             	}
             	else {
+            		this.log('Afterparty over.')
             		this.afterpartyactive = false;
             		this.playgreen = 3;
             	}
