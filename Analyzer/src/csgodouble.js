@@ -491,7 +491,7 @@ Automated.prototype.bet = function(amount, color) {
     	        } else {
     	            color = this.default_color;
     	        }
-    			if(!this.trainchanged && (amount > (this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 +))) {
+    			if(!this.trainchanged && (amount > (this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2))) {
     				// Bet too high, change color
     				this.log('Bet too high. Switching color.')
     				color = (color === 'red' ? 'black' : 'red');
@@ -627,9 +627,9 @@ Automated.prototype.play = function() {
                 }
             }
             // Afterparty
-            var last_color = '';
-            last_color = this.history[this.history.length - 1];
-            if(this.afterparty && (last_color === 'green' || this.afterpartyactive)) {
+//            var last_color = '';
+//            last_color = this.history[this.history.length - 1];
+            if(this.afterparty && (self.last_color === 'green' || this.afterpartyactive)) {
             	// play next three times green
             	this.playgreen--;
             	if(this.playgreen > 0) {
