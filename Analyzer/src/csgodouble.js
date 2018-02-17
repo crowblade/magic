@@ -504,11 +504,11 @@ Automated.prototype.bet = function(amount, color) {
     			this.maxsamecolor = 0;
     			this.samecolorbet = 0;
     			this.trainchanged = false;
-//    			this.maxsamecolor = 10 + parseInt((Math.random() * (15 - 1) + 1));
-//        		this.log('Trainlength: ' + this.maxsamecolor);
+    			this.maxsamecolor = 4 + parseInt((Math.random() * (5 - 1) + 1));
+        		this.log('Trainlength: ' + this.maxsamecolor);
 //        		this.samecolorbet++;
-//        		var lastc = this.history[this.history.length - 1];
-//        		color = (lastc === 'red' ? 'black' : 'red');
+        		var lastc = this.history[this.history.length - 1];
+        		color = (lastc === 'red' ? 'black' : 'red');
     		}
     	}
     }
