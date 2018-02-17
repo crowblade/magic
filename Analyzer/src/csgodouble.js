@@ -477,9 +477,9 @@ Automated.prototype.bet = function(amount, color) {
     	if(this.samecolorbet === 0) {
     		// Start new train
     		this.maxsamecolor = 4 + parseInt((Math.random() * (5 - 1) + 1));
-    		this.log('Trainlength: ' + this.maxsamecolor);
+    		this.log('New Train. Length: ' + this.maxsamecolor);
     		this.samecolorbet++;
-    		var lastc = this.history[this.history.length - 1];
+    		var lastc = this.last_color;
     		color = (lastc === 'red' ? 'black' : 'red');
     	}
     	else {
@@ -501,15 +501,15 @@ Automated.prototype.bet = function(amount, color) {
     		}
     		else {
     			// Train ending
-    			this.log('Train ended. Starting new one.')
+    			this.log('Train ending.')
     			this.maxsamecolor = 0;
     			this.samecolorbet = 0;
     			this.trainchanged = false;
-    			this.maxsamecolor = 4 + parseInt((Math.random() * (5 - 1) + 1));
-        		this.log('Trainlength: ' + this.maxsamecolor);
+//    			this.maxsamecolor = 4 + parseInt((Math.random() * (5 - 1) + 1));
+//        		this.log('Trainlength: ' + this.maxsamecolor);
 //        		this.samecolorbet++;
-        		var lastc = this.history[this.history.length - 1];
-        		color = (lastc === 'red' ? 'black' : 'red');
+        		var lastc = this.last_color;
+        		color = (lastc === 'red' ? 'red' : 'black');
     		}
     	}
     }
