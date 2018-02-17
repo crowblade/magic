@@ -484,7 +484,7 @@ Automated.prototype.bet = function(amount, color) {
     	}
     	else {
     		// Train going currently
-    		if(this.samecolorbet < this.maxsamecolor) {
+    		if(this.samecolorbet <= this.maxsamecolor) {
     			this.samecolorbet++;
     			this.log('Betting Number ' + this.samecolorbet + ' of ' + this.maxsamecolor + ' on current train.')
     			if (this.last_color) {
@@ -507,8 +507,8 @@ Automated.prototype.bet = function(amount, color) {
 //    			this.maxsamecolor = 10 + parseInt((Math.random() * (15 - 1) + 1));
 //        		this.log('Trainlength: ' + this.maxsamecolor);
 //        		this.samecolorbet++;
-        		var lastc = this.history[this.history.length - 1];
-        		color = (lastc === 'red' ? 'black' : 'red');
+//        		var lastc = this.history[this.history.length - 1];
+//        		color = (lastc === 'red' ? 'black' : 'red');
     		}
     	}
     }
