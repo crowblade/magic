@@ -474,9 +474,9 @@ Automated.prototype.bet = function(amount, color) {
     } else if (color === 'last') {
         color = this.history[this.history.length - 1];
     } else if (color === 'raintrain') {
-    	if(this.samecolorbet == 0) {
+    	if(this.samecolorbet === 0) {
     		// Start new train
-    		this.maxsamecolor = 7 + parseInt((Math.random() * (10 - 1) + 1));
+    		this.maxsamecolor = 4 + parseInt((Math.random() * (5 - 1) + 1));
     		this.log('Trainlength: ' + this.maxsamecolor);
     		this.samecolorbet++;
     		var lastc = this.history[this.history.length - 1];
