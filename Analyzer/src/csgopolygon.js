@@ -10,15 +10,16 @@
 
 var debug = false;
 var stop_on_min_balance = false;
-var calculate_safe_bet = false;
 var base_bet = 5;
-var safe_bet_amount = 6;
 var default_color = 'red';
 var default_method = 'martingale';
 var initial_bet = 5;
 var afterparty = false;
+var afterpartyactive = false;
+var playgreen = 3;
 var samecolorbet = 0;
 var maxsamecolor = 0;
+var trainchanged = false;
 
 var colors = {
     'green': [0],
@@ -60,23 +61,24 @@ Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
 
 function Automated() {
-    var self = this;
+	var self = this;
 
     this.running = false;
     this.game = null;
 
     this.debug = debug;
     this.stop_on_min_balance = stop_on_min_balance;
-	this.calculate_safe_bet = calculate_safe_bet;
 	this.initial_bet = base_bet;
 	this.afterparty = afterparty;
+	this.afterpartyactive = afterpartyactive;
+	this.playgreen = playgreen;
 	this.samecolorbet = samecolorbet;
 	this.maxsamecolor = maxsamecolor;
+	this.trainchanged = trainchanged;
 
     this.base_bet = base_bet;
     this.default_color = default_color;
     this.default_method = default_method;
-	this.safe_bet_amount = safe_bet_amount;
     this.method = this.default_method;
     this.old_method = '';
     this.color = 'rainbow';
@@ -128,7 +130,7 @@ function Automated() {
                         '<button type="button" class="btn btn-default" id="automated-rainbow" ' + (this.color === 'rainbow' ? 'disabled' : '') + '>Rainbow</button>' +
                         '<button type="button" class="btn btn-default" id="automated-random" ' + (this.color === 'random' ? 'disabled' : '') + '>Random</button>' +
                         '<button type="button" class="btn btn-default" id="automated-last" ' + (this.color === 'last' ? 'disabled' : '') + '>Last winning</button>' +
-                        '<button type="button" class="btn btn-default" id="automated-raintrain" ' + (this.color === 'raintrain' ? 'disabled' : '') + '>raintrain</button>' +
+                        '<button type="button" class="btn btn-default" id="automated-raintrain" ' + (this.color === 'raintrain' ? 'disabled' : '') + '>Rainbow Trains</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
@@ -144,7 +146,7 @@ function Automated() {
         '<div class="form-group">' +
             '<div class="input-group">' +
                 '<div class="input-group-addon">Base value</div>' +
-                '<input type="number" class="form-control" placeholder="Calculating suggested value..." id="automated-base-bet" disabled>' +
+                '<input type="number" class="form-control" id="automated-base-bet">' +
             '</div>' +
         '</div>' +
         '<div class="form-group">' +
@@ -153,75 +155,57 @@ function Automated() {
                 '<input type="number" class="form-control" value="0" id="automated-min-balance">' +
             '</div>' +
         '</div>' +
-        '<div class="form-group automated-hide-on-green">' +
-            '<div class="input-group">' +
-                '<div class="input-group-addon">Failsafe value</div>' +
-                '<input type="number" class="form-control" value="' + this.safe_bet_amount + '" id="automated-safe-bet-amount"' + (!this.calculate_safe_bet ? ' disabled' : '') + '>' +
-            '</div>' +
-        '</div>' +
         '<div class="checkbox">' +
             '<label><input class="" id="automated-stop-on-min-balance" type="checkbox" ' + (this.stop_on_min_balance ? 'checked' : '') + '> Stop on minimal balance (If checked the bot will stop after getting close to minimal balance, otherwise it will continue starting on base)</label>' +
         '</div>' +
-        '<div class="checkbox automated-hide-on-green">' +
-            '<label><input class="" id="automated-calculate-safe-bet" type="checkbox" ' + (this.calculate_safe_bet ? 'checked' : '') + '> Calculate base bet from given "Failsafe value", the formula is [base bet] = floor( [balance] / 2 ^ ( [failsafe value] + 1) ) </label>' +
-        '</div>' +
         '<div class="checkbox">' +
     		'<label><input class="" id="automated-afterparty" type="checkbox" ' + (this.afterparty ? 'checked' : '') + '> Afterparty: If green hits, play green again the next 3 rounds with low base_bet </label>' +
-    	'</div>' +
-    document.getElementsByClassName('well text-center')[0].appendChild(menu);
+    	'</div>';
+    document.getElementsByClassName('well text-center')[1].appendChild(menu);
 
     this.menu = {
-        'start': document.getElementById('automated-start'),
-        'stop': document.getElementById('automated-stop'),
-        'abort': document.getElementById('automated-abort'),
-        'basebet': document.getElementById('automated-base-bet'),
-        'minbalance': document.getElementById('automated-min-balance'),
-        'afterparty' : document.getElementById('automated-afterparty'),
-        'stoponminbalance': document.getElementById('automated-stop-on-min-balance'),
-        'red': document.getElementById('automated-red'),
-        'black': document.getElementById('automated-black'),
-        'rainbow': document.getElementById('automated-rainbow'),
-        'random': document.getElementById('automated-random'),
-        'last': document.getElementById('automated-last'),
-        'raintrain': document.getElementById('automated-raintrain'),
-        'statistics': {
-            'wins': document.getElementById('automated-stats-wins'),
-            'losses': document.getElementById('automated-stats-loses'),
-            'profit': document.getElementById('automated-stats-balance'),
-            'biggestbet': document.getElementById('automated-stats-biggestbet'),
-            'minreached': document.getElementById('automated-stats-minreached')
-        },
-		'safebetamount': document.getElementById('automated-safe-bet-amount'),
-		'calculatesafebet': document.getElementById('automated-calculate-safe-bet'),
-        'martingale': document.getElementById('automated-martingale'),
-        'greatmartingale': document.getElementById('automated-great-martingale'),
-        'betgreen': document.getElementById('automated-bet-green'),
-        'dalembert': document.getElementById('automated-dalembert'),
-        'hideongreen': document.getElementsByClassName('automated-hide-on-green')
-    };
+            'start': document.getElementById('automated-start'),
+            'stop': document.getElementById('automated-stop'),
+            'abort': document.getElementById('automated-abort'),
+            'basebet': document.getElementById('automated-base-bet'),
+            'minbalance': document.getElementById('automated-min-balance'),
+            'afterparty' : document.getElementById('automated-afterparty'),
+            'stoponminbalance': document.getElementById('automated-stop-on-min-balance'),
+            'red': document.getElementById('automated-red'),
+            'black': document.getElementById('automated-black'),
+            'rainbow': document.getElementById('automated-rainbow'),
+            'random': document.getElementById('automated-random'),
+            'last': document.getElementById('automated-last'),
+            'raintrain': document.getElementById('automated-raintrain'),
+            'statistics': {
+                'wins': document.getElementById('automated-stats-wins'),
+                'losses': document.getElementById('automated-stats-loses'),
+                'profit': document.getElementById('automated-stats-balance'),
+                'biggestbet': document.getElementById('automated-stats-biggestbet'),
+                'minreached': document.getElementById('automated-stats-minreached')
+            },
+    		'safebetamount': document.getElementById('automated-safe-bet-amount'),
+            'martingale': document.getElementById('automated-martingale'),
+            'greatmartingale': document.getElementById('automated-great-martingale'),
+            'betgreen': document.getElementById('automated-bet-green'),
+            'dalembert': document.getElementById('automated-dalembert'),
+            'hideongreen': document.getElementsByClassName('automated-hide-on-green')
+        };
 
     this.updater = setInterval(function() { // Update every 2 seconds
         if (!self.running) {
-            if (self.updateAll()) {
-				if (self.calculate_safe_bet) {
-					self.base_bet = Math.floor(self.balance / Math.pow(2, self.safe_bet_amount + 1));
-					self.menu.basebet.value = self.base_bet;
-                    if (self.debug) { self.logdebug('New base bet: ' + self.base_bet); }
-				}
-				
+            if (self.updateAll()) {				
 				if (self.menu.stop.disabled && self.menu.start.disabled) {
 					self.menu.start.disabled = false;
-                    self.base_bet = Math.floor(self.balance / Math.pow(2, self.safe_bet_amount + 1));
                     self.menu.basebet.value = self.base_bet;
-					self.menu.basebet.disabled = self.menu.calculatesafebet.checked;
 					self.starting_balance = self.balance;
 				}
             }
         }
     }, 2 * 1000);
 
-    this.menu.start.onclick = function() {
-
+this.menu.start.onclick = function() {
+    	
         self.start();
     };
 
@@ -248,22 +232,9 @@ function Automated() {
         }
     };
 
-    this.menu.safebetamount.onchange = function() {
-        var value = parseInt(self.menu.safebetamount.value);
-        if (!isNaN(value)) {
-            self.safe_bet_amount = value;
-        }
-    };
-
     this.menu.stoponminbalance.onchange = function() {
         self.stop_on_min_balance = self.menu.stoponminbalance.checked;
     };
-	
-	this.menu.calculatesafebet.onchange = function() {
-		self.calculate_safe_bet = self.menu.calculatesafebet.checked;
-		self.menu.basebet.disabled = self.menu.calculatesafebet.checked;
-		self.menu.safebetamount.disabled = !self.menu.calculatesafebet.checked;
-	};
 	
 	this.menu.afterparty.onchange = function() {
 		self.afterparty = self.menu.afterparty.checked;
@@ -442,7 +413,7 @@ Automated.prototype.updateAll = function() {
 };
 
 Automated.prototype.bet = function(amount, color) {
-    var self = this;
+	var self = this;
     color = color || this.color || this.default_color;
 
     if (color === 'rainbow') {
@@ -459,26 +430,46 @@ Automated.prototype.bet = function(amount, color) {
     } else if (color === 'last') {
         color = this.history[this.history.length - 1];
     } else if (color === 'raintrain') {
-    	if(this.samecolorbet == 0) {
+    	if(this.samecolorbet === 0) {
     		// Start new train
-    		this.maxsamecolor = 10 + (Math.random() * (1 - 0.1) + 0.1 > 15);
-    		this.log('Trainlength: ' + this.maxsamecolor);
+    		this.maxsamecolor = 3 + parseInt((Math.random() * (5 - 1) + 1));
+    		this.log('New Train. Length: ' + this.maxsamecolor);
     		this.samecolorbet++;
-    		var lastc = this.history[this.history.length - 1];
+    		var lastc = this.last_color;
     		color = (lastc === 'red' ? 'black' : 'red');
     	}
     	else {
     		// Train going currently
     		if(this.samecolorbet < this.maxsamecolor) {
+    			this.samecolorbet++;
     			if (this.last_color) {
-    	            color = (this.last_color === 'red' ? 'black' : 'red');
+    	            color = (this.last_color === 'red' ? 'red' : 'black');
     	        } else {
     	            color = this.default_color;
     	        }
+    			if(!this.trainchanged && (amount > (this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2))) {
+    				// Bet too high, change color
+    				this.log('Bet too high. Switching color.')
+    				color = (color === 'red' ? 'black' : 'red');
+    				this.trainchanged = true;
+    			}
+    			this.log('Betting Number ' + this.samecolorbet + ' of ' + this.maxsamecolor + ' on current train.')
+    		}
+    		else {
+    			// Train ending
+    			this.log('Train ending.')
+    			this.maxsamecolor = 0;
+    			this.samecolorbet = 0;
+    			this.trainchanged = false;
+//    			this.maxsamecolor = 4 + parseInt((Math.random() * (5 - 1) + 1));
+//        		this.log('Trainlength: ' + this.maxsamecolor);
+//        		this.samecolorbet++;
+        		var lastc = this.last_color;
+        		color = (lastc === 'red' ? 'red' : 'black');
     		}
     	}
     }
-
+    
     if (this.balance - amount < this.min_balance) {
         this.log('Reached minimal balance!');
         this.last_result = 'reached min balance';
@@ -488,7 +479,7 @@ Automated.prototype.bet = function(amount, color) {
         }
         this.waiting_for_bet = false;
         return false;
-    }   
+    }  
 
     bet_input.value = amount;
 
@@ -549,10 +540,6 @@ Automated.prototype.play = function() {
             if (self.last_color === null) {
                 self.bet(self.base_bet);
             } else if (self.last_color === self.history[self.history.length - 1]) {
-				if (self.calculate_safe_bet) {
-                    self.base_bet = Math.floor(self.balance / Math.pow(2, self.safe_bet_amount + 1));
-					self.menu.basebet.value = self.base_bet;
-				}
                 self.last_result = 'win';
                 self.log('Win!');
                 self.stats.wins += 1;
@@ -592,11 +579,21 @@ Automated.prototype.play = function() {
                 }
             }
             // Afterparty
-            var last_color = '';
-            last_color = this.history[this.history.length - 1];
-            if(last_color === 'green') {
-            	// play next three times green with lower bet
-            	
+//            var last_color = '';
+//            last_color = this.history[this.history.length - 1];
+            if(this.afterparty && (self.last_color === 'green' || this.afterpartyactive)) {
+            	// play next three times green
+            	this.log('Afterparty! Betting on green...')
+            	this.playgreen--;
+            	if(this.playgreen > 0) {
+            		this.afterpartyactive = true;
+            		self.bet(initial_bet, 'green');
+            	}
+            	else {
+            		this.log('Afterparty over.')
+            		this.afterpartyactive = false;
+            		this.playgreen = 3;
+            	}
             }
         }
     }, 2 * 1000);
@@ -605,11 +602,7 @@ Automated.prototype.play = function() {
 };
 
 Automated.prototype.start = function() {
-    if (self.calculate_safe_bet) {
-        self.base_bet = Math.floor(self.balance / Math.pow(2, self.safe_bet_amount + 1));
-        self.menu.basebet.value = self.base_bet;
-    }
-    
+	
     this.initial_bet = this.base_bet;
     
     // Actual start
@@ -653,6 +646,9 @@ Automated.prototype.stop = function(abort) {
     var self = this;
     if (abort) { this.last_result = 'abort'; }
     this.stats.balance = parseInt(this.balance) - parseInt(this.starting_balance);
+    this.maxsamecolor = 0;
+    this.samecolorbet = 0;
+    this.trainchanged = false;
     setTimeout(function() {
         clearInterval(self.game);
         self.game = null;

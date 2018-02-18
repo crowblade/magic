@@ -205,8 +205,7 @@ function Automated() {
     }, 2 * 1000);
 
     this.menu.start.onclick = function() {
-
-        // start(self.balance);
+    	
         self.start();
     };
 
@@ -232,10 +231,6 @@ function Automated() {
             self.min_balance = value;
         }
     };
-
-    //this.menu.debug.onchange = function() {
-    //    self.debug = self.menu.debug.checked;
-    //};
 
     this.menu.stoponminbalance.onchange = function() {
         self.stop_on_min_balance = self.menu.stoponminbalance.checked;
