@@ -451,7 +451,10 @@ Automated.prototype.bet = function(amount, color) {
     	        } else {
     	            color = this.default_color;
     	        }
-    			var toohigh = this.initial_bet * 2 += this.initial_bet * 2 += this.initial_bet * 2 += this.initial_bet * 2 += this.initial_bet * 2;
+    			var toohigh = 0;
+    			for(int i = 0; i < 4; i++) {
+    				toohigh += (this.initial_bet * 2);
+    			}
     			this.log('Too high amount: ' + toohigh);
     			if(!this.trainchanged && (amount === toohigh)) {
     				// Bet too high, change color
