@@ -432,7 +432,7 @@ Automated.prototype.bet = function(amount, color) {
     } else if (color === 'raintrain') {
     	if(this.samecolorbet === 0) {
     		// Start new train
-    		this.maxsamecolor = 3 + parseInt((Math.random() * (5 - 1) + 1));
+    		this.maxsamecolor = 3 + parseInt((Math.random() * (4 - 1) + 1));
     		this.log('New Train. Length: ' + this.maxsamecolor);
     		this.samecolorbet++;
     		var lastc = this.last_color;
@@ -447,7 +447,12 @@ Automated.prototype.bet = function(amount, color) {
     	        } else {
     	            color = this.default_color;
     	        }
-    			if(!this.trainchanged && (amount > (this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2 + this.initial_bet * 2))) {
+    			var toohigh = 0;
+    			for(int i = 0; i < 4; i++) {
+    				toohigh += (this.initial_bet * 2);
+    			}
+    			this.log('Too high amount: ' + toohigh);
+    			if(!this.trainchanged && (amount === toohigh)) {
     				// Bet too high, change color
     				this.log('Bet too high. Switching color.')
     				color = (color === 'red' ? 'black' : 'red');
