@@ -436,7 +436,7 @@ Automated.prototype.bet = function(amount, color) {
     } else if (color === 'raintrain') {
     	if(this.samecolorbet === 0) {
     		// Start new train
-    		this.maxsamecolor = 2 + parseInt((Math.random() * (3 - 1) + 1));
+    		this.maxsamecolor = 2 + parseInt((Math.random() * (2 - 1) + 1));
     		this.log('New Train. Length: ' + this.maxsamecolor);
     		this.samecolorbet++;
     		var lastc = this.last_color;
