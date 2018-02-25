@@ -356,12 +356,12 @@ this.menu.start.onclick = function() {
         self.log('Current method: Bet green');
     };
 
-//    setInterval(function() {
-//        if(!WS) {
-//            self.log('Reconnecting...');
-//            connect();
-//        }
-//    }, 5000);
+    setInterval(function() {
+        if(!WS) {
+            self.log('Reconnecting...');
+            connect();
+        }
+    }, 5000);
 }
 
 Automated.prototype.updateBalance = function() {
